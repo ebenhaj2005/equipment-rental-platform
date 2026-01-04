@@ -55,7 +55,7 @@ Dit is een proof of concept voor een verhuurplatform gebouwd met:
 
 1. **Repository klonen**
 ```bash
-   git clone https://github.com/jouw-username/equipment-rental-platform.git
+   git clone https://github.com/ebenhaj2005/equipment-rental-platform.git
    cd equipment-rental-platform
 ```
 
@@ -75,7 +75,7 @@ Backend draait op `http://localhost:8080`
 ```
 
 4. **Frontend openen**
-   Open `index.html` in je browser (of serve via een local server)
+   Open `index.html` in je browser
 
 ## Database Schema
 
@@ -112,81 +112,11 @@ Automatisch geladen bij startup:
 - Maven
 - Git
 
-## Projectstructuur
-```
-src/main/java/com/rentalplatform/equipmentrental/
-├── config/
-│   └── SecurityConfig.java
-├── controller/
-│   ├── AuthController.java
-│   ├── ProductController.java
-│   ├── CartController.java
-│   └── RentalController.java
-├── service/
-│   ├── UserService.java
-│   ├── ProductService.java
-│   ├── CartService.java
-│   └── RentalService.java
-├── repository/
-│   ├── UserRepository.java
-│   ├── ProductRepository.java
-│   ├── CartRepository.java
-│   └── RentalRepository.java
-├── model/
-│   ├── User.java
-│   ├── Product.java
-│   ├── Category.java
-│   ├── Cart.java
-│   ├── CartItem.java
-│   └── Rental.java
-└── dto/
-    ├── UserDTO.java
-    ├── ProductDTO.java
-    └── ...
-
-src/main/resources/
-├── application.properties
-└── import.sql
-```
-
-## Testen
-
-### Handmatig testen
-1. Registreer een student: `POST /api/auth/register`
-2. Login: `POST /api/auth/login`
-3. Bekijk producten: `GET /api/products`
-4. Voeg product toe aan cart: `POST /api/cart/add`
-5. Checkout: `POST /api/rentals/checkout`
-
-### Test Credentials
-```
-Email: student@example.com
-Wachtwoord: test123
-```
-
-## Toekomstige Verbeteringen
-
-- [ ] JWT tokens voor stateless authentication
-- [ ] React/Vue frontend
-- [ ] Email notificaties
-- [ ] Geavanceerde filters (prijs, beschikbaarheid)
-- [ ] Beheerders dashboard
-- [ ] Meerdere database support (PostgreSQL, MySQL)
-- [ ] Docker containerization
-- [ ] Unit tests
-
-## Licentie
-
-MIT
 
 ## Contact
 
-Voor vragen: [jouw-email@example.com]
+Voor vragen: benhajelias@gmail.com
 
 ---
 
 **Opmerking:** Dit is een proof of concept. Voor production gebruik:
-- Migreer naar persistent database (PostgreSQL/MySQL)
-- Implementeer JWT tokens
-- Voeg unit/integration tests toe
-- Beveilig endpoints met role-based access control
