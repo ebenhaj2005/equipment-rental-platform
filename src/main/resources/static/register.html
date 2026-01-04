@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Rental - Registratie</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo"><a href="index.html">Equipment Rental</a></h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="products.html">Catalogus</a>
+            <a href="cart.html">Winkelwagen (<span id="cartCount">0</span>)</a>
+            <a href="orders.html">Mijn Verhuren</a>
+            <a href="login.html" id="loginLink">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="form-box">
+        <h2>Registratie</h2>
+        <form id="registerForm">
+            <input type="email" id="regEmail" placeholder="Email" required>
+            <input type="password" id="regPassword" placeholder="Wachtwoord" required>
+            <input type="text" id="regFirstName" placeholder="Voornaam" required>
+            <input type="text" id="regLastName" placeholder="Achternaam" required>
+            <input type="text" id="regStudentNumber" placeholder="Studentnummer" required>
+            <button type="submit" class="btn-primary">Registreer</button>
+        </form>
+        <p>Al een account? <a href="login.html">Login hier</a></p>
+        <div id="registerError" class="error"></div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('registerForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const data = {
+            email: document.getElementById('regEmail').value,
+            password: document.getElementById('regPassword').value,
+            firstName: document.getElementById('regFirstName').value,
+            lastName: document.getElementById('regLastName').value,
+            studentNumber: document.getElementById('regStudentNumber').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/register`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                alert('Registratie succesvol! Log nu in.');
+                window.location.href = 'login.html';
+            } else {
+                const error = await response.json();
+                showError('registerError', error.error || 'Registratie mislukt');
+            }
+        } catch (error) {
+            showError('registerError', 'Fout: ' + error.message);
+        }
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Rental - Winkelwagen</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo"><a href="index.html">Equipment Rental</a></h1>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="products.html">Catalogus</a>
+            <a href="cart.html">Winkelwagen (<span id="cartCount">0</span>)</a>
+            <a href="orders.html">Mijn Verhuren</a>
+            <button onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
+            <a href="login.html" id="loginLink">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Winkelwagen</h2>
+
+    <div id="cartItems" class="cart-items">
+        <!-- Cart items worden hier geladen -->
+    </div>
+
+    <div class="cart-summary">
+        <h3>Totaal: €<span id="cartTotal">0.00</span></h3>
+        <button onclick="checkout()" class="btn-primary" id="checkoutBtn">Checkout</button>
+        <a href="products.html"><button class="btn-secondary">Doorgaan met Winkelen</button></a>
+    </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+    async function loadCart() {
+        try {
+            const response = await fetch(`${API_BASE}/cart`, { credentials: 'include' });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert('Log in om je winkelwagen te bekijken');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                throw new Error('Failed to load cart');
+            }
+
+            const cart = await response.json();
+
+            const cartItemsDiv = document.getElementById('cartItems');
+            const cartTotalSpan = document.getElementById('cartTotal');
+
+            if (cart.items.length === 0) {
+                cartItemsDiv.innerHTML = '<p>Winkelwagen is leeg</p>';
+                cartTotalSpan.textContent = '0.00';
+                document.getElementById('checkoutBtn').disabled = true;
+                return;
+            }
+
+            document.getElementById('checkoutBtn').disabled = false;
+            cartItemsDiv.innerHTML = '';
+
+            cart.items.forEach(item => {
+                const cartItem = document.createElement('div');
+                cartItem.className = 'cart-item';
+                cartItem.innerHTML = `
+                    <div class="cart-item-details">
+                        <div class="cart-item-name">${item.product.name}</div>
+                        <div class="cart-item-quantity">Aantal: ${item.quantity}</div>
+                        <div class="cart-item-dates">${item.rentalStartDate} tot ${item.rentalEndDate}</div>
+                        <div class="cart-item-subtotal">Subtotaal: €${item.subtotal.toFixed(2)}</div>
+                    </div>
+                    <button class="remove-btn" onclick="removeFromCart(${item.id})">Verwijderen</button>
+                `;
+                cartItemsDiv.appendChild(cartItem);
+            });
+
+            cartTotalSpan.textContent = cart.totalPrice.toFixed(2);
+        } catch (error) {
+            console.error('Failed to load cart:', error);
+            document.getElementById('cartItems').innerHTML = '<p>Fout bij laden van winkelwagen</p>';
+        }
+    }
+
+    async function removeFromCart(itemId) {
+        try {
+            const response = await fetch(`${API_BASE}/cart/remove/${itemId}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+
+            if (response.ok) {
+                loadCart();
+                updateCartCount();
+            } else {
+                alert('Fout bij verwijderen');
+            }
+        } catch (error) {
+            console.error('Failed to remove item:', error);
+            alert('Fout bij verwijderen');
+        }
+    }
+
+    async function checkout() {
+        try {
+            const response = await fetch(`${API_BASE}/rentals/checkout`, {
+                method: 'POST',
+                credentials: 'include'
+            });
+
+            console.log('Checkout response status:', response.status);
+
+            if (response.ok) {
+                // Clone response to read multiple times if needed
+                const clonedResponse = response.clone();
+
+                try {
+                    const rental = await response.json();
+                    console.log('Rental created:', rental);
+                    sessionStorage.setItem('lastRental', JSON.stringify(rental));
+                    window.location.href = 'checkout-success.html';
+                } catch (jsonError) {
+                    console.error('JSON parse error:', jsonError);
+                    // Even if JSON fails, redirect anyway since status was 200
+                    alert('Checkout succesvol!');
+                    window.location.href = 'checkout-success.html';
+                }
+            } else {
+                const error = await response.json();
+                console.error('Checkout error:', error);
+                alert(error.error || 'Checkout mislukt');
+            }
+        } catch (error) {
+            console.error('Checkout error:', error);
+            alert('Checkout mislukt: ' + error.message);
+        }
+    }
+
+    // Load cart on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuthStatus();
+        updateCartCount();
+        loadCart();
+    });
+</script>
+</body>
+</html>

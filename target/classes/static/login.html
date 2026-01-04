@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Rental - Login</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo"><a href="index.html">Equipment Rental</a></h1>
+        <div class="nav-links">
+            <a href="index.html">Home</a>
+            <a href="products.html">Catalogus</a>
+            <a href="cart.html">Winkelwagen (<span id="cartCount">0</span>)</a>
+            <a href="orders.html">Mijn Verhuren</a>
+            <a href="login.html" id="loginLink">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <div class="form-box">
+        <h2>Login</h2>
+        <form id="loginForm">
+            <input type="email" id="loginEmail" placeholder="Email" required>
+            <input type="password" id="loginPassword" placeholder="Wachtwoord" required>
+            <button type="submit" class="btn-primary">Login</button>
+        </form>
+        <p>Nog geen account? <a href="register.html">Registreer hier</a></p>
+        <div id="loginError" class="error"></div>
+    </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+    document.getElementById('loginForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const data = {
+            email: document.getElementById('loginEmail').value,
+            password: document.getElementById('loginPassword').value
+        };
+
+        try {
+            const response = await fetch(`${API_BASE}/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'include',
+                body: JSON.stringify(data)
+            });
+
+            if (response.ok) {
+                currentUser = await response.json();
+                alert('Login succesvol!');
+                window.location.href = 'products.html';
+            } else {
+                const error = await response.json();
+                showError('loginError', error.error || 'Login mislukt');
+            }
+        } catch (error) {
+            showError('loginError', 'Login mislukt');
+        }
+    });
+</script>
+</body>
+</html>

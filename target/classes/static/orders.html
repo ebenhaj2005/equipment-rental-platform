@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Equipment Rental - Mijn Verhuren</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<nav class="navbar">
+    <div class="nav-container">
+        <h1 class="logo"><a href="index.html">Equipment Rental</a></h1>
+        <div class="nav-links" id="navLinks">
+            <a href="index.html">Home</a>
+            <a href="products.html">Catalogus</a>
+            <a href="cart.html">Winkelwagen (<span id="cartCount">0</span>)</a>
+            <a href="orders.html">Mijn Verhuren</a>
+            <button onclick="logout()" id="logoutBtn" style="display:none;">Logout</button>
+            <a href="login.html" id="loginLink">Login</a>
+        </div>
+    </div>
+</nav>
+
+<div class="container">
+    <h2>Mijn Verhuren</h2>
+
+    <div id="rentalsList" class="rentals-list">
+        <!-- Rentals worden hier geladen -->
+    </div>
+</div>
+
+<script src="app.js"></script>
+<script>
+    async function loadMyRentals() {
+        try {
+            const response = await fetch(`${API_BASE}/rentals/my-rentals`, { credentials: 'include' });
+
+            if (!response.ok) {
+                if (response.status === 401) {
+                    alert('Log in om je verhuren te bekijken');
+                    window.location.href = 'login.html';
+                    return;
+                }
+                throw new Error('Failed to load rentals');
+            }
+
+            const rentals = await response.json();
+
+            const rentalsList = document.getElementById('rentalsList');
+            rentalsList.innerHTML = '';
+
+            if (rentals.length === 0) {
+                rentalsList.innerHTML = '<p>Je hebt nog geen verhuren</p>';
+                return;
+            }
+
+            rentals.forEach(rental => {
+                const rentalCard = document.createElement('div');
+                rentalCard.className = 'rental-card';
+                rentalCard.innerHTML = `
+                    <h3>Verhuur #${rental.id}</h3>
+                    <div class="rental-item"><strong>Totaal:</strong> €${rental.totalPrice.toFixed(2)}</div>
+                    <div class="rental-item"><strong>Status:</strong> ${rental.status}</div>
+                    <div class="rental-item"><strong>Datum:</strong> ${new Date(rental.rentalDate).toLocaleDateString('nl-NL')}</div>
+                `;
+                rentalsList.appendChild(rentalCard);
+            });
+        } catch (error) {
+            console.error('Failed to load rentals:', error);
+            document.getElementById('rentalsList').innerHTML = '<p>Fout bij laden van verhuren</p>';
+        }
+    }
+
+    // Load rentals on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        checkAuthStatus();
+        updateCartCount();
+        loadMyRentals();
+    });
+</script>
+</body>
+</html>
